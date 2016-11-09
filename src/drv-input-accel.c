@@ -74,9 +74,18 @@ accelerometer_changed (void)
 
 	close (fd);
 
-	readings.accel_x = accel_x;
-	readings.accel_y = accel_y;
-	readings.accel_z = accel_z;
+	if (g_strcmp0 ("platform-lis3lv02d", g_udev_device_get_property (drv_data->dev, "ID_PATH")) == 0) {
+		/* Quirk for lis3lv02d device,
+		 * take opposite x */
+		readings.accel_x = -accel_x;
+		readings.accel_y = accel_y;
+		readings.accel_z = accel_z;
+	} else {
+		readings.accel_x = accel_x;
+		readings.accel_y = accel_y;
+		readings.accel_z = accel_z;
+	}
+
 	/* Scale from 1G ~= 256 to a value in m/s² */
 	readings.scale = 1.0 / 256 * 9.81;
 
